@@ -1,39 +1,52 @@
 <!DOCTYPE html>
-<html>
-<head><title>Flask CRUD App</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Manager & Auth</title>
+</head>
 <body>
-  <h2>Item Manager</h2>
-  <input id="itemName" placeholder="Item name">
-  <button onclick="addItem()">Add Item</button>
-  <ul id="itemList"></ul>
+    <h2>Register</h2>
+    <input type="text" id="reg-username" placeholder="Username">
+    <input type="password" id="reg-password" placeholder="Password">
+    <button onclick="register()">Register</button>
 
-  <script>
-    const API_URL = '/items';
+    <h2>Login</h2>
+    <input type="text" id="login-username" placeholder="Username">
+    <input type="password" id="login-password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="auth-status"></p>
 
-    async function fetchItems() {
-      const res = await fetch(API_URL);
-      const items = await res.json();
-      document.getElementById('itemList').innerHTML = items.map(i => 
-        `<li>${i.name} <button onclick="deleteItem('${i._id}')">Delete</button></li>`
-      ).join('');
-    }
+    <hr>
 
-    async function addItem() {
-      const name = document.getElementById('itemName').value;
-      await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
-      fetchItems();
-    }
+    <h2>Item Manager</h2>
+    <input type="text" id="item-name" placeholder="Item Name">
+    <button onclick="addItem()">Add Item</button>
+    <ul id="item-list"></ul>
 
-    async function deleteItem(id) {
-      await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-      fetchItems();
-    }
+    <script>
+        async function register() {
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            document.getElementById('auth-status').innerText = JSON.stringify(data);
+        }
 
-    fetchItems();
-  </script>
+        async function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            document.getElementById('auth-status').innerText = JSON.stringify(data);
+        }
+    </script>
 </body>
 </html>
