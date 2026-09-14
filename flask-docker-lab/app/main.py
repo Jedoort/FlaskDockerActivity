@@ -1,7 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from crud import init_db, get_items, add_item, delete_item, login_user, register_user
-from flask import render_template
 
 app = Flask(__name__)
 CORS(app)
@@ -26,7 +25,7 @@ def delete_item_route(item_id):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 @app.route('/register', methods=['POST'])
 def register():
