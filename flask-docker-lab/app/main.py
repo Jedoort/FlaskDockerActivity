@@ -6,10 +6,6 @@ app = Flask(__name__)
 CORS(app)
 db = init_db()
 
-@app.route('/')
-def home():
-    return jsonify({"message": "Flask app is running!"})
-
 @app.route('/items', methods=['GET'])
 def read_items():
     return jsonify(get_items(db))
