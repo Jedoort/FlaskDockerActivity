@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  flask1:
+    build: .
+    volumes:
+      - app_data:/app/data
+    environment:
+    - MONGO_URI=${MONGO_URI}
+    networks:
+    - backend
+
+  flask2:
+    build: .
+    environment:
+    - MONGO_URI=${MONGO_URI}
+    networks:
+    - backend
+
+  nginx:
+    image: nginx:alpine
+    ports:
+    - "80:80"
+    volumes:
+    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - flask1
+      - flask2
+    networks:
+      - backend
+
+volumes:
+  app_data:
+
+networks:
+  backend:
