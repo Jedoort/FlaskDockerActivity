@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from crud import init_db, get_items, add_item, delete_item
+from crud import init_db, get_items, add_item, delete_item, login_user, register_user
 from flask import render_template
 
 app = Flask(__name__)
