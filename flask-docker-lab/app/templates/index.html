@@ -2,51 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Item Manager & Auth</title>
+    <title>Dashboard - Item Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 2rem; display: flex; justify-content: center; }
+        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 500px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        .input-group { display: flex; gap: 10px; margin-top: 1.5rem; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-add { background-color: #28a745; color: white; }
+        .btn-delete { background-color: #dc3545; color: white; padding: 5px 10px; }
+        .btn-logout { background-color: #6c757d; color: white; }
+        ul { list-style: none; padding: 0; margin-top: 1.5rem; }
+        li { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; }
+    </style>
 </head>
 <body>
-    <h2>Register</h2>
-    <input type="text" id="reg-username" placeholder="Username">
-    <input type="password" id="reg-password" placeholder="Password">
-    <button onclick="register()">Register</button>
+    <div class="container">
+        <div class="header">
+            <h2>Item Dashboard</h2>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
 
-    <h2>Login</h2>
-    <input type="text" id="login-username" placeholder="Username">
-    <input type="password" id="login-password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <p id="auth-status"></p>
+        <div class="input-group">
+            <input type="text" id="item-name" placeholder="Enter new item name">
+            <button class="btn-add" onclick="addItem()">Add Item</button>
+        </div>
 
-    <hr>
-
-    <h2>Item Manager</h2>
-    <input type="text" id="item-name" placeholder="Item Name">
-    <button onclick="addItem()">Add Item</button>
-    <ul id="item-list"></ul>
+        <ul id="item-list"></ul>
+    </div>
 
     <script>
-        async function register() {
-            const username = document.getElementById('reg-username').value;
-            const password = document.getElementById('reg-password').value;
-            const res = await fetch('/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            document.getElementById('auth-status').innerText = JSON.stringify(data);
+        // Redirect immediately if not logged in
+        if (!localStorage.getItem("user_authenticated")) {
+            window.location.href = '/login';
         }
 
-        async function login() {
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            const res = await fetch('/login', {
+        function handleLogout() {
+            localStorage.removeItem("user_authenticated");
+            window.location.href = '/login';
+        }
+
+        async function fetchItems() {
+            const res = await fetch('/items');
+            const items = await res.json();
+            const list = document.getElementById('item-list');
+            list.innerHTML = '';
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${item.name}</span> <button class="btn-delete" onclick="deleteItem('${item._id}')">Delete</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        async function addItem() {
+            const input = document.getElementById('item-name');
+            if (!input.value.trim()) return;
+            await fetch('/items', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ name: input.value.trim() })
             });
-            const data = await res.json();
-            document.getElementById('auth-status').innerText = JSON.stringify(data);
+            input.value = '';
+            fetchItems();
         }
+
+        async function deleteItem(id) {
+            await fetch(`/items/${id}`, { method: 'DELETE' });
+            fetchItems();
+        }
+
+        fetchItems();
     </script>
 </body>
 </html>
